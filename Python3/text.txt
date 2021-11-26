@@ -1,1 +1,4 @@
-Lorem Ipsum
+Solving 2D Navier-Stokes equations using the finite difference method for single-phase laminar flow
+Verifying results using benchmark lid cavity test
+
+https://towardsdatascience.com/computational-fluid-dynamics-using-python-modeling-laminar-flow-272dad1ebec
