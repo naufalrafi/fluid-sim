@@ -1,4 +1,4 @@
-import Python3.myClasses as mc
+import myClasses as mc
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -70,6 +70,15 @@ def SetPBoundary(space: mc.Space, left: mc.Boundary, right: mc.Boundary, top: mc
         space.p[0,:] = bottom.value
     elif bottom.type == 'N':
         space.p[0,:] = (bottom.value*space.dy) + space.p[1,:]
+
+def SetTimeStep(CFL,space,fluid):
+    with np.errstate(divide='ignore'):
+        dt=CFL/np.sum([np.amax(space.u)/space.dx,\
+                           np.amax(space.v)/space.dy])
+    #Escape condition if dt is infinity due to zero velocity initially
+    if np.isinf(dt):
+        dt=CFL*(space.dx+space.dy)
+    space.dt=dt
 
 def GetTimeStep(CFL, space: mc.Space, fluid: mc.Fluid):
     with np.errstate(divide = 'ignore'):
@@ -171,28 +180,3 @@ def SetCentrePUV(space: mc.Space):
     space.p_c=space.p[1:-1,1:-1]
     space.u_c=space.u[1:-1,1:-1]
     space.v_c=space.v[1:-1,1:-1]
-
-def MakeResultDirectory(wipe = False):
-    cwdir=os.getcwd()
-    dir_path=os.path.join(cwdir,"Result")
-    if not os.path.isdir(dir_path):
-        os.makedirs(dir_path,exist_ok=True)
-    else:
-        if wipe:
-            os.chdir(dir_path)
-            filelist=os.listdir()
-            for file in filelist:
-                os.remove(file)
-    
-    os.chdir(cwdir)
-            
-    
-def WriteToFile(space: mc.Space, iteration, interval):
-    if(iteration%interval==0):
-        dir_path=os.path.join(os.getcwd(),"Result")
-        filename="PUV{0}.txt".format(iteration)
-        path=os.path.join(dir_path,filename)
-        with open(path,"w") as f:
-            for i in range(space.rowpts):
-                for j in range(space.colpts):
-                    f.write("{}\t{}\t{}\n".format(space.p_c[i,j],space.u_c[i,j],space.v_c[i,j]))
